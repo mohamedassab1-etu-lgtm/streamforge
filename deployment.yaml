@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: streamforge-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: streamforge
+  template:
+    metadata:
+      labels:
+        app: streamforge
+    spec:
+      containers:
+      - name: streamforge
+        image: mohamedassab/streamforge:v1 # Ton image Docker Hub
+        ports:
+        - containerPort: 5000
+        # Tests de santé (Mission 3.3)
+        livenessProbe:
+          httpGet:
+            path: /api/formats
+            port: 5000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /api/formats
+            port: 5000
+          initialDelaySeconds: 5
+          periodSeconds: 10

@@ -1,0 +1,71 @@
+openapi: 3.0.0
+info:
+  title: StreamForge API
+  description: Data Extraction & Media Forge API
+  version: 1.0.0
+servers:
+  - url: http://localhost:5000
+    description: Local Flask Server
+paths:
+  /api/formats:
+    post:
+      summary: Get available video formats
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [url]
+              properties:
+                url:
+                  type: string
+                  example: "https://www.youtube.com/watch?v=jNQXAC9IVRw"
+      responses:
+        '200':
+          description: Video metadata and available formats
+        '400':
+          description: Invalid URL
+        '500':
+          description: Server error
+
+  /api/download:
+    post:
+      summary: Download a specific video or audio stream
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [url, format_id]
+              properties:
+                url:
+                  type: string
+                  example: "https://www.youtube.com/watch?v=jNQXAC9IVRw"
+                format_id:
+                  type: string
+                  example: "137"
+                is_audio_only:
+                  type: boolean
+                  example: false
+      responses:
+        '200':
+          description: Download successful
+          content:
+            application/octet-stream: # Tells Swagger this is a file
+              schema:
+                type: string
+                format: binary
+  /api/fetch/{filename}:
+    get:
+      summary: Trigger the browser download for a forged file
+      parameters:
+        - name: filename
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Standard browser download triggered
