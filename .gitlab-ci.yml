@@ -1,0 +1,30 @@
+stages:
+  - test
+  - build
+  - deploy
+
+variables:
+  DOCKER_IMAGE: "mohamedassab/streamforge:v1"
+
+# 1. Test Stage: Verify the Flask API logic
+test_api:
+  stage: test
+  script:
+    - pip install -r requirements.txt
+    - python -m pytest tests/  # You will need to create a simple test file
+
+# 2. Build Stage: Build and Push to Docker Hub
+build_image:
+  stage: build
+  script:
+    - docker login -u "$DOCKER_USER" -p "$DOCKER_PASSWORD"
+    - docker build -t $DOCKER_IMAGE .
+    - docker push $DOCKER_IMAGE
+
+# 3. Deploy Stage: Apply manifests to the cluster
+deploy_to_k8s:
+  stage: deploy
+  script:
+    - kubectl apply -f deployment.yaml
+    - kubectl apply -f service.yaml
+    - kubectl rollout restart deployment/streamforge-deployment
